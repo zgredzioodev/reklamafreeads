@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Discord Server List</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0b0f1a;
+    color: white;
+}
+
+/* TOP BAR */
+.topbar {
+    background: #11162a;
+    text-align: center;
+    padding: 8px;
+    font-size: 13px;
+}
+
+.topbar a {
+    color: #00aff4;
+    text-decoration: none;
+}
+
+/* HEADER */
+header {
+    background: linear-gradient(90deg, #5865F2, #7c4dff);
+    padding: 25px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* CONTAINER */
+.container {
+    max-width: 850px;
+    margin: auto;
+    padding: 15px;
+}
+
+/* FORM */
+.box {
+    background: #151a2e;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(88,101,242,0.2);
+}
+
+input, textarea {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #0e1324;
+    color: white;
+}
+
+button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: #5865F2;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #4752c4;
+    transform: scale(1.02);
+}
+
+/* LIST (DISBOARD STYLE) */
+#list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+/* CARD */
+.card {
+    background: #151a2e;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(88,101,242,0.25);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.card h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.card p {
+    margin: 0;
+    color: #b5b5b5;
+}
+
+.card a {
+    margin-top: 5px;
+    color: #00aff4;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.delete {
+    margin-top: 10px;
+    width: fit-content;
+    padding: 8px 12px;
+    font-size: 13px;
+    background: #ff4d4d;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+}
+
+.delete:hover {
+    background: #d93636;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+🔗 Dołącz do Discord: <a href="https://discord.gg/developerzy" target="_blank">discord.gg/developerzy</a>
+</div>
+
+<header>
+📢 Discord Server List
+</header>
+
+<div class="container">
+
+<div class="box">
+<h3>Dodaj swój serwer</h3>
+
+<input id="name" placeholder="Nazwa serwera">
+<textarea id="desc" placeholder="Opis serwera"></textarea>
+<input id="link" placeholder="Link Discord">
+
+<button onclick="add()">Dodaj reklamę</button>
+</div>
+
+<div id="list"></div>
+
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("ads")) || [];
+
+function save(){
+    localStorage.setItem("ads", JSON.stringify(data));
+}
+
+function add(){
+    let name = document.getElementById("name").value;
+    let desc = document.getElementById("desc").value;
+    let link = document.getElementById("link").value;
+
+    if(!name || !desc || !link){
+        alert("Uzupełnij wszystkie pola!");
+        return;
+    }
+
+    let pin = Math.floor(Math.random() * 99999);
+
+    data.unshift({
+        id: Date.now(),
+        name,
+        desc,
+        link,
+        pin
+    });
+
+    alert("Zapisz PIN do usuwania: " + pin);
+
+    document.getElementById("name").value = "";
+    document.getElementById("desc").value = "";
+    document.getElementById("link").value = "";
+
+    save();
+    render();
+}
+
+function remove(id){
+    let pin = prompt("Podaj PIN usuwania:");
+    let item = data.find(x => x.id === id);
+
+    if(item.pin == pin){
+        data = data.filter(x => x.id !== id);
+        save();
+        render();
+    } else {
+        alert("Zły PIN!");
+    }
+}
+
+function render(){
+    let list = document.getElementById("list");
+    list.innerHTML = "";
+
+    data.forEach(x => {
+        list.innerHTML += `
+        <div class="card">
+            <h3>${x.name}</h3>
+            <p>${x.desc}</p>
+            <a href="${x.link}" target="_blank">👉 Dołącz</a>
+            <button class="delete" onclick="remove(${x.id})">Usuń reklamę</button>
+        </div>
+        `;
+    });
+}
+
+render();
+</script>
+
+</body>
+</html>
